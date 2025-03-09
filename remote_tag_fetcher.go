@@ -8,7 +8,45 @@ import (
 	"time"
 )
 
-// Struct to parse the JSON response
+type LatestTag struct {
+	TagName    string
+	LastPushed time.Time
+}
+
+func fetchLatestTagFromDockerHub(imageName string) (*LatestTag, error) {
+	url := fmt.Sprintf("https://registry.hub.docker.com/v2/namespaces/library/repositories/%s/tags?page_size=1", imageName)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch tags: %s", resp.Status)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var tagReps RepoTagsResp
+	if err := json.Unmarshal(body, &tagReps); err != nil {
+		return nil, err
+	}
+
+	return &LatestTag{
+		TagName:    tagReps.Results[0].Name,
+		LastPushed: tagReps.Results[0].TagLastPushed,
+	}, nil
+}
+
+func fetchLatestTag(registry RegistryType, imageName string) (*LatestTag, error) {
+	if registry == DockerHub {
+		return fetchLatestTagFromDockerHub(imageName)
+	}
+	return nil, fmt.Errorf("unsupported registry type")
+}
 
 type RepoTagsResp struct {
 	Count    int         `json:"count"`
@@ -44,36 +82,4 @@ type RepoTagsResp struct {
 		ContentType         string    `json:"content_type"`
 		Digest              string    `json:"digest"`
 	} `json:"results"`
-}
-
-func (i *ImageConfig) fetchRemoteTags() (*RepoTagsResp, error) {
-	if i.Registry == DockerHub {
-
-		url := fmt.Sprintf("https://registry.hub.docker.com/v2/namespaces/library/repositories/%s/tags?page_size=1", i.Name)
-		resp, err := http.Get(url)
-		if err != nil {
-			return nil, err
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("failed to fetch tags: %s", resp.Status)
-		}
-
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		// print the response
-		fmt.Println(string(body))
-
-		var tagReps RepoTagsResp
-		if err := json.Unmarshal(body, &tagReps); err != nil {
-			return nil, err
-		}
-
-		return &tagReps, nil
-	}
-
-	return nil, fmt.Errorf("unsupported registry type")
 }

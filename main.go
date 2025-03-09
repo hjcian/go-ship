@@ -8,13 +8,12 @@ import (
 func mainLoop(image ImageConfig) {
 	for {
 		log.Printf("Checking for new tags for image: %+v", image)
-		tags, err := image.fetchRemoteTags()
+		tags, err := fetchLatestTag(image.Registry, image.Name)
 		if err != nil {
 			log.Printf("Error fetching tags: %v", err)
 		} else {
 			log.Printf("Fetched tags: %v", tags)
 		}
-
 		time.Sleep(3 * time.Second)
 	}
 }
