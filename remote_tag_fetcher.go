@@ -49,24 +49,24 @@ func fetchLatestTag(registry RegistryType, imageName string) (*LatestTag, error)
 }
 
 type RepoTagsResp struct {
-	Count    int         `json:"count"`
-	Next     string      `json:"next"`
-	Previous interface{} `json:"previous"`
+	Count    int    `json:"count"`
+	Next     string `json:"next"`
+	Previous any    `json:"previous"`
 	Results  []struct {
 		Creator int `json:"creator"`
 		ID      int `json:"id"`
 		Images  []struct {
-			Architecture string      `json:"architecture"`
-			Features     string      `json:"features"`
-			Variant      interface{} `json:"variant"`
-			Digest       string      `json:"digest"`
-			Os           string      `json:"os"`
-			OsFeatures   string      `json:"os_features"`
-			OsVersion    interface{} `json:"os_version"`
-			Size         int         `json:"size"`
-			Status       string      `json:"status"`
-			LastPulled   time.Time   `json:"last_pulled"`
-			LastPushed   time.Time   `json:"last_pushed"`
+			Architecture string    `json:"architecture"`
+			Features     string    `json:"features"`
+			Variant      any       `json:"variant"`
+			Digest       string    `json:"digest"`
+			Os           string    `json:"os"`
+			OsFeatures   string    `json:"os_features"`
+			OsVersion    any       `json:"os_version"`
+			Size         int       `json:"size"`
+			Status       string    `json:"status"`
+			LastPulled   time.Time `json:"last_pulled"`
+			LastPushed   time.Time `json:"last_pushed"`
 		} `json:"images"`
 		LastUpdated         time.Time `json:"last_updated"`
 		LastUpdater         int       `json:"last_updater"`
@@ -80,6 +80,6 @@ type RepoTagsResp struct {
 		TagLastPushed       time.Time `json:"tag_last_pushed"` // NOTE: the last pushed time
 		MediaType           string    `json:"media_type"`
 		ContentType         string    `json:"content_type"`
-		Digest              string    `json:"digest"`
+		Digest              string    `json:"digest"` // NOTE: image ID
 	} `json:"results"`
 }

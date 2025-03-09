@@ -1,5 +1,8 @@
 images:
-  - name: "postgres"
+  # - name: "postgres"
+  #   tag_pattern: "v*"
+  #   registry: "dockerhub"
+  - name: "redis"
     tag_pattern: "v*"
     registry: "dockerhub"
   # - name: "my-aws-image"
