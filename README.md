@@ -14,6 +14,9 @@
 - 🚧 decide the behavior if there are multiple containers with the same image
 - 🚧 a simple static web page to show the status of the containers
 - 🚧 support AWS, Azure, GCP container registry
+- [ ] tests
+- [ ] CI/CD
+
 
 ## Compatibility issues
 
