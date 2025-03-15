@@ -17,19 +17,39 @@ start:
 
 		log.Printf("Checking for new tags for image: %+v", image)
 
-		tag, err := getRunningContainerTag(image.Name)
+		runningContainerInfo, err := getRunningContainerInfo(image.Name)
 		if err != nil {
 			log.Printf("Error fetching local tag: %v", err)
 			goto start
 		}
-		log.Println("Found tag of running container:", tag)
+		log.Println("Found tag of running container:", runningContainerInfo)
 
 		latestTag, err := fetchLatestTag(image.Registry, image.Name)
 		if err != nil {
 			log.Printf("Error fetching tags: %v", err)
-		} else {
-			log.Printf("Fetched tags: %v", latestTag)
+			goto start
 		}
+		log.Printf("Fetched tags: %v", latestTag)
+
+		if runningContainerInfo.Tag == latestTag.TagName {
+			log.Println("Tags are the same, no need to update")
+			goto start
+		}
+
+		log.Printf("Pulling image: %s:%s", image.Name, latestTag.TagName)
+		newImage := image.Name + ":" + latestTag.TagName
+		if err := pullImage(newImage); err != nil {
+			log.Printf("Error pulling image: %v", err)
+			goto start
+		}
+		log.Println("Pulled image successfully")
+
+		log.Println("Restarting container...")
+		if err := restartContainerWithNewImage(runningContainerInfo.ContainerID, newImage); err != nil {
+			log.Printf("Error restarting container: %v", err)
+			goto start
+		}
+		log.Println("Restarted container successfully")
 	}
 }
 
