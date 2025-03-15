@@ -25,12 +25,12 @@ type RunningContainerInfo struct {
 func getRunningContainerInfo(imageName string) (*RunningContainerInfo, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create docker client: %w", err)
 	}
 
 	containers, err := cli.ContainerList(context.Background(), container.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to list containers: %w", err)
 	}
 
 	if err != nil {
@@ -88,10 +88,22 @@ func restartContainerWithNewImage(containerID, newImage string) error {
 	if err := cli.ContainerStop(context.Background(), containerID, container.StopOptions{}); err != nil {
 		return fmt.Errorf("failed to stop container: %w", err)
 	}
-	// Remove the old container?
-	// if err := cli.ContainerRemove(context.Background(), containerID, container.RemoveOptions{}); err != nil {
-	// 	return fmt.Errorf("failed to remove container: %w", err)
-	// }
+	// Remove the old container
+	if err := cli.ContainerRemove(context.Background(), containerID, container.RemoveOptions{}); err != nil {
+		if strings.Contains(err.Error(), "is already in progress") {
+
+		} else {
+			return fmt.Errorf("failed to remove container: %w", err)
+		}
+	}
+	// Wait for the container to be removed
+	for {
+		_, err := cli.ContainerInspect(context.Background(), containerID)
+		if err != nil {
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
 
 	// Create a new container with the same configuration but using the new image
 	config := containerJSON.Config

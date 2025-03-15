@@ -1,17 +1,19 @@
 # Design doc
-- ✅ read config
-    - name: "redis"
-    - tag_pattern: "v*"
-    - registry: "dockerhub"
-- ✅ get latest tag from remote
-- ✅ get local running container's tag
-- compare the tag
-    - if different, pull the latest image and restart the container
-    - if same, do nothing
-
-# TODO
-- pulling based on the pattern, not just the latest
-- decide the behavior if there are multiple containers with the same image
+- ✅ basic functionalities
+    - ✅ read config
+        - name: "redis"
+        - tag_pattern: "v*"
+        - registry: "dockerhub"
+    - ✅ get latest tag from remote
+    - ✅ get local running container's tag
+    - ✅ compare the tag
+        - if different, pull the latest image and restart the container
+        - if same, do nothing
+    - ✅ restart the container
+- 🚧 pulling based on the pattern, not just the latest
+- 🚧 decide the behavior if there are multiple containers with the same image
+- 🚧 a simple static web page to show the status of the containers
+- 🚧 support AWS, Azure, GCP container registry
 
 ## Compatibility issues
 
