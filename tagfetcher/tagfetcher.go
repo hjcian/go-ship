@@ -3,6 +3,7 @@ package tagfetcher
 import (
 	"encoding/json"
 	"fmt"
+	"go-ship/config"
 	"go-ship/register"
 	"io"
 	"net/http"
@@ -49,38 +50,22 @@ func FetchLatestTag(registry register.RegistryType, imageName string) (*LatestTa
 	return nil, fmt.Errorf("unsupported registry type")
 }
 
-type RepoTagsResp struct {
-	Count    int    `json:"count"`
-	Next     string `json:"next"`
-	Previous any    `json:"previous"`
-	Results  []struct {
-		Creator int `json:"creator"`
-		ID      int `json:"id"`
-		Images  []struct {
-			Architecture string    `json:"architecture"`
-			Features     string    `json:"features"`
-			Variant      any       `json:"variant"`
-			Digest       string    `json:"digest"`
-			Os           string    `json:"os"`
-			OsFeatures   string    `json:"os_features"`
-			OsVersion    any       `json:"os_version"`
-			Size         int       `json:"size"`
-			Status       string    `json:"status"`
-			LastPulled   time.Time `json:"last_pulled"`
-			LastPushed   time.Time `json:"last_pushed"`
-		} `json:"images"`
-		LastUpdated         time.Time `json:"last_updated"`
-		LastUpdater         int       `json:"last_updater"`
-		LastUpdaterUsername string    `json:"last_updater_username"`
-		Name                string    `json:"name"` // NOTE: the tag name
-		Repository          int       `json:"repository"`
-		FullSize            int       `json:"full_size"`
-		V2                  bool      `json:"v2"`
-		TagStatus           string    `json:"tag_status"`
-		TagLastPulled       time.Time `json:"tag_last_pulled"`
-		TagLastPushed       time.Time `json:"tag_last_pushed"` // NOTE: the last pushed time
-		MediaType           string    `json:"media_type"`
-		ContentType         string    `json:"content_type"`
-		Digest              string    `json:"digest"` // NOTE: image ID
-	} `json:"results"`
+func FetchWatchedTags(cfg config.ImageConfig) ([]ImageTag, error) {
+	var tags ImageTags
+	var err error
+	if cfg.Registry == register.DockerHub {
+		if tags, err = FetchTags(cfg.Name); err != nil {
+			return nil, fmt.Errorf("failed to fetch tags for %s: %w", cfg.Name, err)
+		}
+	}
+	if len(cfg.TagPatterns) == 0 {
+		// means no tag patterns specified, return the last pushed tag in all tags
+		latest := tags.GetLatestPushed()
+		if latest == nil {
+			return nil, fmt.Errorf("no tags found for %s", cfg.Name)
+		}
+		return []ImageTag{*latest}, nil
+	}
+
+	return nil, fmt.Errorf("unsupported registry type")
 }

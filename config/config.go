@@ -13,8 +13,8 @@ type Config struct {
 
 type ImageConfig struct {
 	Name        string                `yaml:"name"`
-	TagPatterns []string              `yaml:"tag_patterns"`
 	Registry    register.RegistryType `yaml:"registry"`
+	TagPatterns []string              `yaml:"tag_patterns"`
 }
 
 func Load(filePath string) (*Config, error) {
