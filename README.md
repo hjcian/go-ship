@@ -11,6 +11,8 @@
         - if same, do nothing
     - ✅ restart the container
 - 🚧 pulling based on the pattern, not just the latest
+    - ✅ fetch latest is pattern not specified
+    - 👉 fetch tags based on the patterns
 - 🚧 decide the behavior if there are multiple containers with the same image
 - 🚧 a simple static web page to show the status of the containers
 - 🚧 support AWS, Azure, GCP container registry
