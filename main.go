@@ -1,6 +1,7 @@
 package main
 
 import (
+	tagfetcher "go-ship/tag_fetcher"
 	"log"
 	"time"
 )
@@ -24,7 +25,7 @@ start:
 		}
 		log.Println("Found tag of running container:", runningContainerInfo)
 
-		latestTag, err := fetchLatestTag(image.Registry, image.Name)
+		latestTag, err := tagfetcher.FetchLatestTag(image.Registry, image.Name)
 		if err != nil {
 			log.Printf("Error fetching tags: %v", err)
 			goto start
