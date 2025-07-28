@@ -1,12 +1,14 @@
 package main
 
 import (
-	tagfetcher "go-ship/tag_fetcher"
+	"go-ship/config"
+	"go-ship/tagfetcher"
+
 	"log"
 	"time"
 )
 
-func mainLoop(image ImageConfig) {
+func mainLoop(image config.ImageConfig) {
 	first := true
 start:
 	for {
@@ -55,12 +57,12 @@ start:
 }
 
 func main() {
-	config, err := LoadConfig("test/test.config.yaml")
+	cfg, err := config.Load("test/test.config.yaml")
 	if err != nil {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	for _, image := range config.Images {
+	for _, image := range cfg.Images {
 		go mainLoop(image)
 	}
 	// wait forever

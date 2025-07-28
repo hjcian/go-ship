@@ -1,3 +1,5 @@
+.PHONY: build run tidy redis-run stop-redis test
+
 build:
 	@go build -o bin/$(shell basename $(PWD)) *.go
 
@@ -18,3 +20,7 @@ redis-run:
 stop-redis:
 	docker stop lucid_heisenberg
 	docker rm lucid_heisenberg
+
+
+test:
+	@go test -v ./...

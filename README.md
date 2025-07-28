@@ -17,6 +17,12 @@
 - [ ] tests
 - [ ] CI/CD
 
+WatchedImage
+- name
+- tag_patterns
+- registry
+
+
 
 ## Compatibility issues
 

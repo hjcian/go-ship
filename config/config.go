@@ -1,7 +1,7 @@
-package main
+package config
 
 import (
-	tagfetcher "go-ship/tag_fetcher"
+	"go-ship/register"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -12,12 +12,12 @@ type Config struct {
 }
 
 type ImageConfig struct {
-	Name       string                  `yaml:"name"`
-	TagPattern string                  `yaml:"tag_pattern"`
-	Registry   tagfetcher.RegistryType `yaml:"registry"`
+	Name        string                `yaml:"name"`
+	TagPatterns []string              `yaml:"tag_patterns"`
+	Registry    register.RegistryType `yaml:"registry"`
 }
 
-func LoadConfig(filePath string) (*Config, error) {
+func Load(filePath string) (*Config, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err

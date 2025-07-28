@@ -2,37 +2,12 @@ package tagfetcher
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
+	"go-ship/register"
 	"io"
 	"net/http"
 	"time"
 )
-
-type RegistryType int
-
-const (
-	DockerHub RegistryType = iota
-	AWS
-)
-
-func (r *RegistryType) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	var s string
-	if err := unmarshal(&s); err != nil {
-		return err
-	}
-
-	switch s {
-	case "dockerhub":
-		*r = DockerHub
-	case "aws":
-		*r = AWS
-	default:
-		return errors.New("invalid registry type")
-	}
-
-	return nil
-}
 
 type LatestTag struct {
 	TagName    string
@@ -67,8 +42,8 @@ func fetchLatestTagFromDockerHub(imageName string) (*LatestTag, error) {
 	}, nil
 }
 
-func FetchLatestTag(registry RegistryType, imageName string) (*LatestTag, error) {
-	if registry == DockerHub {
+func FetchLatestTag(registry register.RegistryType, imageName string) (*LatestTag, error) {
+	if registry == register.DockerHub {
 		return fetchLatestTagFromDockerHub(imageName)
 	}
 	return nil, fmt.Errorf("unsupported registry type")

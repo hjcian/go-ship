@@ -4,6 +4,9 @@ images:
   #   registry: "dockerhub"
   - name: "redis"
     tag_pattern: "v*"
+    tag_patterns:
+      - "v*"
+      - "latest"
     registry: "dockerhub"
   # - name: "my-aws-image"
   #   tag_pattern: "latest"
