@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestImageTags_Len(t *testing.T) {
@@ -72,6 +73,49 @@ func TestImageTags_GetLatestPushed(t *testing.T) {
 	assert.Equal(t, "latest", latest.Name)
 	assert.Equal(t, "sha256:f957ce918b51f3ac10414244bedd0043c47db44a819f98b9902af1bd9d0afcea", latest.Digest)
 	assert.Equal(t, "2025-07-22T22:05:59Z", latest.TagLastPushed.Format(time.RFC3339))
+}
+
+func TestImageTags_Filter(t *testing.T) {
+	// Test the _test_data, unmarshal it and check the latest tag
+	var testTags ImageTags
+	if err := json.Unmarshal([]byte(_test_data), &testTags); err != nil {
+		t.Fatalf("failed to unmarshal test data: %v", err)
+	}
+	tcs := []struct {
+		pattern  string
+		expected []string
+	}{
+		{"8.*", []string{"8.0.3-bookworm", "8.0.3", "8.0-bookworm", "8.0", "8.2-rc1-bookworm", "8.2-rc1"}},
+		{"latest", []string{"latest"}},
+		{"bookworm", []string{"bookworm"}},
+		{"bookworm*", []string{"bookworm"}},
+		{"*bookworm", []string{"bookworm", "8.0.3-bookworm", "8.0-bookworm", "8-bookworm", "7.4.5-bookworm", "7.4-bookworm", "7.2.10-bookworm", "7.2-bookworm", "7-bookworm", "6.2.19-bookworm", "6.2-bookworm", "6-bookworm", "8.2-rc1-bookworm"}},
+		{
+			"7.4*-alpine*", []string{
+				"7.4.5-alpine3.21",
+				"7.4.5-alpine",
+				"7.4-alpine3.21",
+				"7.4-alpine",
+			},
+		},
+		{
+			"7.4-*", []string{
+				"7.4-bookworm",
+				"7.4-alpine3.21",
+				"7.4-alpine",
+			},
+		},
+	}
+	for _, tc := range tcs {
+		filtered := testTags.Filter(tc.pattern)
+		assert.Equal(t, len(tc.expected), len(filtered), "expected %d tags for pattern %s, got %d", len(tc.expected), tc.pattern, len(filtered))
+
+		var filteredNames []string
+		for _, tag := range filtered {
+			filteredNames = append(filteredNames, tag.Name)
+		}
+		require.ElementsMatch(t, tc.expected, filteredNames, "expected tags for pattern %s do not match", tc.pattern)
+	}
 }
 
 var _test_data = `

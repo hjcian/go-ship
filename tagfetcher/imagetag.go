@@ -1,6 +1,9 @@
 package tagfetcher
 
-import "time"
+import (
+	"path/filepath"
+	"time"
+)
 
 type ImageTag struct {
 	Name          string    `json:"name"`            // The tag name
@@ -25,4 +28,31 @@ func (it ImageTags) GetLatestPushed() *ImageTag {
 		}
 	}
 	return &latest
+}
+
+func (it ImageTags) Filter(glob_pattern string) ImageTags {
+	var filtered ImageTags
+	for _, tag := range it {
+		if matchesGlob(tag.Name, glob_pattern) {
+			filtered = append(filtered, tag)
+		}
+	}
+	return filtered
+}
+
+// Use 3rd party lib. github.com/gobwas/glob
+// func matchesGlob(name, pattern string) bool {
+// 	g, err := glob.Compile(pattern)
+// 	if err != nil {
+// 		return false
+// 	}
+// 	return g.Match(name)
+// }
+
+func matchesGlob(name, pattern string) bool {
+	matched, err := filepath.Match(pattern, name)
+	if err != nil {
+		return false // Invalid pattern, no match
+	}
+	return matched
 }
